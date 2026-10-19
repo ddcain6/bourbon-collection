@@ -1,0 +1,30 @@
+name: Rename uploaded file to index.html
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rename file and remove this workflow
+        run: |
+          git config user.name "ddcain6"
+          git config user.email "ddcain6@users.noreply.github.com"
+          if [ -f bourbon-collection.html ] && [ ! -f index.html ]; then
+            git mv bourbon-collection.html index.html
+          fi
+          if [ -f .github/workflows/rename-to-index.yml ]; then
+            git rm -q .github/workflows/rename-to-index.yml
+          fi
+          if git diff --cached --quiet; then
+            echo "Nothing to do."
+          else
+            git commit -m "Rename bourbon-collection.html to index.html"
+            git push origin HEAD:main
+          fi
