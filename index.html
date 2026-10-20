@@ -134,7 +134,11 @@
         background: color-mix(in srgb, var(--bg) 92%, transparent);
         backdrop-filter: blur(8px);
         padding: 16px 0 12px;
+        transition: transform .28s ease;
+        will-change: transform;
       }
+      /* Smart hide (Option 2): JS toggles .bar-hidden by scroll direction */
+      .controls.bar-hidden { transform: translateY(-110%); }
       .search-row { display: flex; gap: 10px; flex-wrap: wrap; }
       .search-box { flex: 1 1 260px; position: relative; }
       .search-box svg {
@@ -3108,6 +3112,43 @@ var BOTTLES = [
     }
   }, { passive: true });
   wheelOverlay.addEventListener('touchend', function () { wheelTouchY = null; });
+
+  /* ---------- Smart-hide controls bar ----------
+     Option 2 (Derick, Oct 2026): the sticky .controls bar slides up out of
+     view while scrolling down through the bottles and slides back into view
+     on any scroll up, wherever the user is in the list.
+       - 5px deadzone kills jitter and forgives iOS rubber-band flips.
+       - Only hide once scrolled 140px+ down, so nudges near the top of the
+         page never hide the bar while it is still in its natural position.
+       - Force-visible whenever scrollY is back near the top (<= 8px).
+       - rAF-throttled, transform-only, so layout never reflows. */
+  var controlsBar = document.getElementById('collection');
+  if (controlsBar) {
+    var barLastY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+    var barTicking = false;
+    function updateControlsBar() {
+      barTicking = false;
+      var y = Math.max(0, window.scrollY || window.pageYOffset || 0);
+      var dy = y - barLastY;
+      if (y <= 8) {
+        controlsBar.classList.remove('bar-hidden');
+        barLastY = y;
+        return;
+      }
+      if (Math.abs(dy) <= 5) return; /* deadzone: keep lastY anchored */
+      if (dy > 0) {
+        if (y > 140) controlsBar.classList.add('bar-hidden');
+      } else {
+        controlsBar.classList.remove('bar-hidden');
+      }
+      barLastY = y;
+    }
+    window.addEventListener('scroll', function () {
+      if (barTicking) return;
+      barTicking = true;
+      window.requestAnimationFrame(updateControlsBar);
+    }, { passive: true });
+  }
 
   modeFullBtn.addEventListener('click', function () { setWheelMode('full'); });
   modeKillBtn.addEventListener('click', function () { setWheelMode('kill'); });
