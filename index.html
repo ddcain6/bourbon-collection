@@ -349,34 +349,6 @@
         display: flex; flex-wrap: wrap; gap: 6px 28px; justify-content: space-between;
       }
 
-      /* ---------- Save to home screen ---------- */
-      .install {
-        background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
-        padding: 22px 24px; margin-top: 28px;
-      }
-      .install[hidden] { display: none; }
-      .install h2 { margin: 0 0 6px; font-size: 1.7rem; font-weight: 600; }
-      .install p { margin: 0 0 12px; color: var(--muted); max-width: 680px; }
-      .install p:last-child { margin-bottom: 0; }
-      .install ol { margin: 0 0 14px; padding-left: 22px; max-width: 680px; }
-      .install li { padding: 4px 0; font-size: 0.96rem; }
-      .install li b { color: var(--ink); }
-      .install .warn {
-        border-top: 1px solid var(--line); padding-top: 12px;
-        font-size: 0.92rem;
-      }
-      .install .warn b { color: var(--low); }
-      .install-done {
-        display: flex; align-items: center; gap: 10px;
-        font-weight: 600; color: var(--ink); margin: 0;
-      }
-      .install-done[hidden] { display: none; }
-      .install-done .dot {
-        flex: 0 0 10px; width: 10px; height: 10px; border-radius: 50%;
-        background: #2e6b34;
-      }
-      @media (prefers-color-scheme: dark) { .install-done .dot { background: #8fce97; } }
-
       /* ---------- Bottle picker wheel ---------- */
       .picker {
         background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
@@ -512,10 +484,6 @@
     </header>
 
     <div class="wrap">
-      <section class="install" id="install-card" aria-label="Home screen status" hidden>
-        <p class="install-done" id="install-done" hidden><span class="dot" aria-hidden="true"></span> You are opening this from your home-screen icon. You are all set.</p>
-      </section>
-
       <section class="picker" aria-label="Random bottle picker">
         <h2>Can&rsquo;t Decide? Spin the Wheel.</h2>
         <p class="lede">One spin, one pour. Pick a mode, hit the button, and whatever the wheel lands on is what&rsquo;s in your glass.</p>
@@ -3123,19 +3091,6 @@ var BOTTLES = [
   // only offers the banner button, which reloads the clean, original
   // address. The saved home-screen icon keeps pointing at that address.
   (function () {
-    // If this copy is being opened from a home-screen icon, show the
-    // status line confirming it.
-    try {
-      var standalone = window.navigator.standalone === true ||
-        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-      if (standalone) {
-        var card = document.getElementById('install-card');
-        var done = document.getElementById('install-done');
-        if (card) card.hidden = false;
-        if (done) done.hidden = false;
-      }
-    } catch (e) {}
-
     var meta = document.querySelector('meta[name="app-build"]');
     if (!meta || !window.fetch) return;
     var mine = meta.getAttribute('content');
